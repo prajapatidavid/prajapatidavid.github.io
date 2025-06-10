@@ -1,19 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>IT IS WHAT IT IS</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: #111;
+      font-family: 'Arial', sans-serif;
+      overflow: hidden;
+      perspective: 1000px;
+      position: relative;
+      color: white;
+    }
+
+    /* Background container */
+    .background-text {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 10vw;
+      font-weight: bold;
+      color: rgba(255, 255, 255, 0.1);
+      user-select: none;
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 0;
+      letter-spacing: 0.1em;
+      display: flex;
+      gap: 0.05em;
+    }
+
+    .background-text span {
+      opacity: 0;
+      animation-name: fadeInOut;
+      animation-duration: 3s;
+      animation-iteration-count: infinite;
+      animation-fill-mode: forwards;
+    }
+
+    @keyframes fadeInOut {
+      0%, 20% {
+        opacity: 0;
+      }
+      50%, 80% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
+
+    .rotate-text {
+      width: max-content;
+      transform-style: preserve-3d;
+      white-space: nowrap;
+      cursor: default;
+      user-select: none;
+      position: fixed;
+      z-index: 1; /* above background */
+    }
+
+    .text-face {
+      position: absolute;
+      top: 0;
+      left: 0;
+      font-size: 6rem;
+      color: white;
+      text-shadow:
+        0 0 10px #0ff,
+        0 0 20px #0ff,
+        0 0 40px #0ff,
+        0 0 80px #0ff;
+      backface-visibility: hidden;
+      white-space: nowrap;
+    }
+
+    .front {
+      transform: rotateY(0deg);
+    }
+
+    .back {
+      transform: rotateY(180deg);
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <div class="cube-text">
-      <span>Innovate</span>
-      <span>Create</span>
-      <span>Inspire</span>
-      <span>Code</span>
-    </div>
+  <div class="background-text" aria-hidden="true"></div>
+
+  <div class="rotate-text" aria-label="3D Rotating Text">
+    <span class="text-face front">IT IS WHAT IT IS</span>
+    <span class="text-face back">IT IS WHAT IT IS</span>
   </div>
+
+  <script>
+    // Setup background text with animated letters
+    const bgText = "IT    IS     WHAT    IT    IS";
+    const bgContainer = document.querySelector('.background-text');
+
+    bgContainer.innerHTML = '';
+
+    for (let i = 0; i < bgText.length; i++) {
+      const span = document.createElement('span');
+      span.textContent = bgText[i];
+      // Add animation delay so letters appear one after another
+      span.style.animationDelay = `${(i * 0.15)}s`;
+      bgContainer.appendChild(span);
+    }
+
+    // 3D rotating text logic
+    const rotateText = document.querySelector('.rotate-text');
+    let rotationX = 0, rotationY = 0, rotationZ = 0;
+
+    let speedX = (Math.random() * 0.5 + 0.2) * (Math.random() < 0.5 ? 1 : -1);
+    let speedY = (Math.random() * 0.5 + 0.2) * (Math.random() < 0.5 ? 1 : -1);
+    let speedZ = (Math.random() * 0.15 + 0.05) * (Math.random() < 0.5 ? 1 : -1);
+
+    let posX = Math.random() * (window.innerWidth - rotateText.offsetWidth);
+    let posY = Math.random() * (window.innerHeight - rotateText.offsetHeight);
+
+    let speedPosX = (Math.random() * 3 + 1) * (Math.random() < 0.5 ? 1 : -1);
+    let speedPosY = (Math.random() * 3 + 1) * (Math.random() < 0.5 ? 1 : -1);
+
+    function clamp(value, min, max) {
+      return Math.min(Math.max(value, min), max);
+    }
+
+    function animate() {
+      rotationX += speedX;
+      rotationY += speedY;
+      rotationZ += speedZ;
+
+      if (rotationX > 90 || rotationX < -90) speedX = -speedX;
+      if (rotationY > 90 || rotationY < -90) speedY = -speedY;
+
+      rotateText.style.transform =
+        `rotateX(${rotationX}deg) rotateY(${rotationY}deg) rotateZ(${rotationZ}deg)`;
+
+      posX += speedPosX;
+      posY += speedPosY;
+
+      if (posX <= 0 || posX >= window.innerWidth - rotateText.offsetWidth) {
+        speedPosX = -speedPosX;
+      }
+      if (posY <= 0 || posY >= window.innerHeight - rotateText.offsetHeight) {
+        speedPosY = -speedPosY;
+      }
+
+      posX = clamp(posX, 0, window.innerWidth - rotateText.offsetWidth);
+      posY = clamp(posY, 0, window.innerHeight - rotateText.offsetHeight);
+
+      rotateText.style.left = posX + 'px';
+      rotateText.style.top = posY + 'px';
+
+      requestAnimationFrame(animate);
+    }
+
+    rotateText.style.position = 'fixed';
+    animate();
+
+    window.addEventListener('resize', () => {
+      posX = clamp(posX, 0, window.innerWidth - rotateText.offsetWidth);
+      posY = clamp(posY, 0, window.innerHeight - rotateText.offsetHeight);
+    });
+  </script>
 </body>
 </html>
